@@ -871,8 +871,73 @@ export type Database = {
           },
         ]
       }
+      email_send_log: {
+        Row: {
+          body_sent: string
+          campaign_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          recipient_email: string
+          recipient_id: string | null
+          recipient_name: string | null
+          source: string
+          status: string
+          subject_sent: string
+          template_id: string | null
+          template_name_snapshot: string
+        }
+        Insert: {
+          body_sent: string
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email: string
+          recipient_id?: string | null
+          recipient_name?: string | null
+          source: string
+          status: string
+          subject_sent: string
+          template_id?: string | null
+          template_name_snapshot: string
+        }
+        Update: {
+          body_sent?: string
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string
+          recipient_id?: string | null
+          recipient_name?: string | null
+          source?: string
+          status?: string
+          subject_sent?: string
+          template_id?: string | null
+          template_name_snapshot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_send_log_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_send_log_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
+          attachment_name: string | null
+          attachment_url: string | null
           body_text: string
           created_at: string
           created_by: string | null
@@ -883,12 +948,16 @@ export type Database = {
           subject: string
           trigger_active: boolean
           trigger_days_before: number | null
+          trigger_end_date: string | null
           trigger_profile_status: string
           trigger_roles: string[]
+          trigger_start_date: string | null
           trigger_type: string
           updated_at: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           body_text: string
           created_at?: string
           created_by?: string | null
@@ -899,12 +968,16 @@ export type Database = {
           subject: string
           trigger_active?: boolean
           trigger_days_before?: number | null
+          trigger_end_date?: string | null
           trigger_profile_status?: string
           trigger_roles?: string[]
+          trigger_start_date?: string | null
           trigger_type?: string
           updated_at?: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           body_text?: string
           created_at?: string
           created_by?: string | null
@@ -915,8 +988,10 @@ export type Database = {
           subject?: string
           trigger_active?: boolean
           trigger_days_before?: number | null
+          trigger_end_date?: string | null
           trigger_profile_status?: string
           trigger_roles?: string[]
+          trigger_start_date?: string | null
           trigger_type?: string
           updated_at?: string
         }
@@ -1362,6 +1437,21 @@ export type Database = {
           name?: string
           name_ar?: string | null
           school_level?: Database["public"]["Enums"]["school_level"]
+        }
+        Relationships: []
+      }
+      invoice_month_counters: {
+        Row: {
+          last_seq: number
+          year_month: string
+        }
+        Insert: {
+          last_seq?: number
+          year_month: string
+        }
+        Update: {
+          last_seq?: number
+          year_month?: string
         }
         Relationships: []
       }
@@ -2906,6 +2996,10 @@ export type Database = {
         Args: { _quiz_id: string; _user_answer: string }
         Returns: Json
       }
+      complete_card_payment: {
+        Args: { p_payment_id: string }
+        Returns: string[]
+      }
       complete_teacher_signup: {
         Args: { p_code: string }
         Returns: {
@@ -3013,6 +3107,7 @@ export type Database = {
         Args: { _action: string; _details?: Json; _user_id: string }
         Returns: string
       }
+      normalize_math_answer: { Args: { _input: string }; Returns: string }
       pause_my_subscription: {
         Args: never
         Returns: {
@@ -3291,12 +3386,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3320,11 +3415,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3345,11 +3440,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3370,11 +3465,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3387,11 +3482,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
